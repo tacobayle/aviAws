@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "vars/fromTerraform.yml"
+    - "vars/creds.json"
+
+  roles:
+    - role: "avinetworks.avisdk"
+
+  tasks:
+
+    - name: Debug
+      debug:
+        msg: "{{ avi_credentials }}"
+      tags:
+        - debug
+
+    - name: Patch Virtualservice
+      avi_virtualservice:
+        avi_credentials: "{{ avi_credentials }}"
+        api_version: "{{ avi_credentials.api_version }}"
+        avi_api_update_method: patch
+        avi_api_patch_op: add
+        name: "{{ item.name }}"
+        sso_policy_ref: "{{ ssoOutput.results.0.obj.uuid }}"
+        saml_sp_config:
+          entity_id: "{{ item.entity_id | default('SAML_app') }}"
+          cookie_name: "{{ item.cookie_name | default('My-cookie') }}"
+          single_signon_url: "https://{{ item.dns_info.0.fqdn }}/sso/acs/"
+      loop: "{{ avi_virtualservice.http }}"
+      loop_control:
+        label: "{{ item.name }}"

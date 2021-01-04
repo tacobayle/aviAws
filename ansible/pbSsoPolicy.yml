@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "vars/fromTerraform.yml"
+    - "vars/creds.json"
+
+
+  roles:
+    - role: "avinetworks.avisdk"
+
+  tasks:
+
+    - name: Create SSO policy
+      avi_ssopolicy:
+        avi_credentials: "{{ avi_credentials }}"
+        api_version: "{{ avi_credentials.api_version }}"
+        name: "{{ item.name }}"
+        tenant: "{{ item.tenant_ref | default('admin') }}"
+        tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
+        type: "{{ item.type }}"
+        authentication_policy:
+          default_auth_profile_ref: "{{ authOutput.results.0.obj.uuid }}"
+      loop: "{{ ssoPolicy }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: ssoOutput
+
+    - name: Debug
+      debug:
+        msg: "{{ ssoOutput.results.0.obj.uuid }}"
+      tags:
+        - debug

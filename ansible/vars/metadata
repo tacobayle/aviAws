@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="http://www.okta.com/exkhspzkv9BnrjjAo4x6" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>MIIDrjCCApagAwIBAgIGAXL57VwFMA0GCSqGSIb3DQEBCwUAMIGXMQswCQYDVQQGEwJVUzETMBEG
+A1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEU
+MBIGA1UECwwLU1NPUHJvdmlkZXIxGDAWBgNVBAMMD2F2aW5ldHdvcmtzZGVtbzEcMBoGCSqGSIb3
+DQEJARYNaW5mb0Bva3RhLmNvbTAeFw0yMDA2MjgwNzU1MjFaFw0zMDA2MjgwNzU2MjFaMIGXMQsw
+CQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzEN
+MAsGA1UECgwET2t0YTEUMBIGA1UECwwLU1NPUHJvdmlkZXIxGDAWBgNVBAMMD2F2aW5ldHdvcmtz
+ZGVtbzEcMBoGCSqGSIb3DQEJARYNaW5mb0Bva3RhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBANYY4F5srd0bcn9lRVRXFgniyLPwHjHfSARn0VCwFhsdgIwfhmUsM5uQ05WpjMjp
+Rk9xY7634N3PB5lIqH5fl6Vnxy5rAP/DI2TD+M9USjhlWMWSz5q4GZaZA6cgZpzmhXYvXBqIVP6C
+XLdDlBUEBVCSVk8+4DV4FBNttd9kASv73jHB0A9/tj3KW1J+MlIax8bwFrreaHCy8Q7cyhTg+npr
+TqY/+Q/sQF54un92xLXwqXWYPG/E+BeaexNVcRLitvA5ZOujn9JgQ6Zv/pqBlUI/gWOLE2cxlUg/
+iPUK/hl3rZoPbTnhLH5UY9R8Pvn/kyQwAorUByeXhbyaS+5XGR8CAwEAATANBgkqhkiG9w0BAQsF
+AAOCAQEAWGuubmOCcPTQSM56HYAJdl2embPN9j2JNWHptk1oC1esaA6B6BRq9GTSRMEjNU3Hme20
+DXsYun0agfCFNncYao0jcOqTagCcMBgZ+62p+7S+L0gl+al3N4Pc1759nM9hYbMA1LTi32UZ5nJt
+PrtC31AeWMpMhf4CZKzWS7+3VEwJ8KhpNxGYgIIYwFRvEu0Q49enakG35D9tOjsF1whcywsUIiVk
+LTZXuFG+HVqnExl5+v/SA9GPw+ryCm36D9M1mLAXCZ+G3gYAr5HlbDbsrzQvUvQ2X1ry0XZcqWM1
+iWWF1tky0Fujwxa0vTJIi4Arwz04usEKovjOH9gBcVi2fg==</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://avinetworksdemo.okta.com/app/avinetworksorg443982_samlapp_2/exkhspzkv9BnrjjAo4x6/sso/saml"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://avinetworksdemo.okta.com/app/avinetworksorg443982_samlapp_2/exkhspzkv9BnrjjAo4x6/sso/saml"/></md:IDPSSODescriptor></md:EntityDescriptor>
