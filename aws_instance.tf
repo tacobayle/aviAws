@@ -95,7 +95,7 @@ data "template_file" "opencart_userdata" {
   template = file(var.opencart["userdata"])
   vars = {
     opencartDownloadUrl = var.opencart["opencartDownloadUrl"]
-    domainName = var.avi_gslb["domain"]
+    domainName = var.aws.domains[0].name
   }
 }
 

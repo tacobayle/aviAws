@@ -3,8 +3,8 @@
 # VPC
 
 resource "aws_vpc" "vpc" {
-  count = length(var.cidrVpc)
-  cidr_block = element(var.cidrVpc, count.index)
+  count = length(var.aws.vpc.cidr)
+  cidr_block = element(var.aws.vpc.cidr, count.index)
   enable_dns_hostnames = true
   enable_dns_support = true
 }
@@ -12,14 +12,14 @@ resource "aws_vpc" "vpc" {
 # Internet gateway
 
 resource "aws_internet_gateway" "internetGateway" {
-  count = length(var.cidrVpc)
+  count = length(var.aws.vpc.cidr)
   vpc_id = aws_vpc.vpc[count.index].id
 }
 
 # Route table
 
 resource "aws_route_table" "rt" {
-  count = length(var.cidrVpc)
+  count = length(var.aws.vpc.cidr)
   vpc_id = aws_vpc.vpc[count.index].id
   route {
     cidr_block = "0.0.0.0/0"
@@ -35,20 +35,20 @@ data "aws_availability_zones" "available" {
 
 resource "aws_subnet" "subnetMgt" {
   vpc_id = aws_vpc.vpc[0].id
-  cidr_block = var.cidrSubnetMgt
+  cidr_block = var.aws.network_admin.cidr
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnetMysql" {
   vpc_id = aws_vpc.vpc[0].id
-  cidr_block = var.cidrSubnetMySql
+  cidr_block = var.aws.network_mysql.cidr
   map_public_ip_on_launch = false
 }
 
 resource "aws_subnet" "subnetAviVs" {
   count = length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.vpc[0].id
-  cidr_block = element(var.cidrSubnetAviVs, count.index)
+  cidr_block = var.aws.network_vip[count.index].cidr
   map_public_ip_on_launch = true
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   tags = {
@@ -59,7 +59,7 @@ resource "aws_subnet" "subnetAviVs" {
 resource "aws_subnet" "subnetBackend" {
   count = length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.vpc[0].id
-  cidr_block = element(var.cidrSubnetBackend, count.index)
+  cidr_block = var.aws.network_backend[count.index].cidr
   map_public_ip_on_launch = false
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   tags = {
@@ -70,7 +70,7 @@ resource "aws_subnet" "subnetBackend" {
 resource "aws_subnet" "subnetAviSeMgt" {
   count = length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.vpc[0].id
-  cidr_block = element(var.cidrSubnetAviSeMgt, count.index)
+  cidr_block = var.aws.management_network[count.index].cidr
   map_public_ip_on_launch = false
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   tags = {
@@ -93,7 +93,7 @@ resource "aws_nat_gateway" "natGw" {
 }
 
 resource "aws_route_table" "rtPrivate" {
-  count = length(var.cidrVpc)
+  count = length(var.aws.vpc.cidr)
   vpc_id = aws_vpc.vpc[count.index].id
   route {
     cidr_block = "0.0.0.0/0"
