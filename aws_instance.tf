@@ -52,22 +52,7 @@ resource "aws_instance" "aviCtrl" {
 
 }
 
-resource "aws_instance" "backend" {
-  count = length(data.aws_availability_zones.available.names)
-  instance_type = var.backend["type"]
-  ami = data.aws_ami.ubuntuBionic.id
-  user_data = file(var.backend["userdata"])
-  key_name = aws_key_pair.kpBackend.id
-  vpc_security_group_ids = [aws_security_group.sgBackend.id]
-  subnet_id = aws_subnet.subnetBackend[count.index].id
 
-  tags = {
-  Name = "backend-${count.index + 1 }"
-  group = "backend"
-  createdBy = "Terraform"
-  }
-
-}
 
 resource "aws_launch_template" "templateAsg" {
   name_prefix   = "templateAsg"
@@ -90,48 +75,48 @@ resource "aws_autoscaling_group" "autoScalingGroup" {
 
 }
 
-data "template_file" "opencart_userdata" {
-  count = var.opencart["count"]
-  template = file(var.opencart["userdata"])
-  vars = {
-    opencartDownloadUrl = var.opencart["opencartDownloadUrl"]
-    domainName = var.aws.domains[0].name
-  }
-}
-
-resource "aws_instance" "opencart" {
-  count = var.opencart["count"]
-  instance_type = var.opencart["type"]
-  ami = data.aws_ami.ubuntuBionic.id
-  user_data = data.template_file.opencart_userdata[count.index].rendered
-  key_name = aws_key_pair.kpOpencart.id
-  vpc_security_group_ids = [aws_security_group.sgOpencart.id]
-  subnet_id = aws_subnet.subnetBackend[count.index].id
-
-  tags = {
-  Name = "opencart-${count.index + 1 }"
-  group = "opencart"
-  createdBy = "Terraform"
-  }
-
-}
-
-resource "aws_instance" "mysql" {
-  count = var.mysql["count"]
-  instance_type = var.mysql["type"]
-  ami = data.aws_ami.ubuntuBionic.id
-  user_data = file(var.mysql["userdata"])
-  key_name = aws_key_pair.kpMysql.id
-  vpc_security_group_ids = [aws_security_group.sgMysql.id]
-  subnet_id = aws_subnet.subnetMysql.id
-
-  tags = {
-  Name = "mySql-${count.index + 1 }"
-  group = "mysql"
-  createdBy = "Terraform"
-  }
-
-}
+//data "template_file" "opencart_userdata" {
+//  count = var.opencart["count"]
+//  template = file(var.opencart["userdata"])
+//  vars = {
+//    opencartDownloadUrl = var.opencart["opencartDownloadUrl"]
+//    domainName = var.aws.domains[0].name
+//  }
+//}
+//
+//resource "aws_instance" "opencart" {
+//  count = var.opencart["count"]
+//  instance_type = var.opencart["type"]
+//  ami = data.aws_ami.ubuntuBionic.id
+//  user_data = data.template_file.opencart_userdata[count.index].rendered
+//  key_name = aws_key_pair.kpOpencart.id
+//  vpc_security_group_ids = [aws_security_group.sgOpencart.id]
+//  subnet_id = aws_subnet.subnetBackend[count.index].id
+//
+//  tags = {
+//  Name = "opencart-${count.index + 1 }"
+//  group = "opencart"
+//  createdBy = "Terraform"
+//  }
+//
+//}
+//
+//resource "aws_instance" "mysql" {
+//  count = var.mysql["count"]
+//  instance_type = var.mysql["type"]
+//  ami = data.aws_ami.ubuntuBionic.id
+//  user_data = file(var.mysql["userdata"])
+//  key_name = aws_key_pair.kpMysql.id
+//  vpc_security_group_ids = [aws_security_group.sgMysql.id]
+//  subnet_id = aws_subnet.subnetMysql.id
+//
+//  tags = {
+//  Name = "mySql-${count.index + 1 }"
+//  group = "mysql"
+//  createdBy = "Terraform"
+//  }
+//
+//}
 
 data "template_file" "jump" {
   template = file(var.jump["userdata"])

@@ -25,9 +25,9 @@ variable "ansible" {
     version = "2.9.12"
     prefixGroup = "aws"
     aviPbAbsentUrl = "https://github.com/tacobayle/ansiblePbAviAbsent"
-    aviPbAbsentTag = "v1.43"
+    aviPbAbsentTag = "v1.49"
     directory = "ansible"
-    aviConfigureTag = "v4.01"
+    aviConfigureTag = "v4.21"
     aviConfigureUrl = "https://github.com/tacobayle/aviConfigure"
     opencartInstallUrl = "https://github.com/tacobayle/ansibleOpencartInstall"
     opencartInstallTag = "v1.19"
@@ -39,28 +39,29 @@ variable "backend" {
   default = {
     type = "t2.micro"
     userdata = "userdata/backend.sh"
-    count = "3"
+    url_demovip_server = "https://github.com/tacobayle/demovip_server"
+    username = "ubuntu"
   }
 }
 
-variable "opencart" {
-  type = map
-  default = {
-    type = "t2.medium"
-    userdata = "userdata/opencart.sh"
-    count = "2"
-    opencartDownloadUrl = "https://github.com/opencart/opencart/releases/download/3.0.3.5/opencart-3.0.3.5.zip"
-  }
-}
-
-variable "mysql" {
-  type = map
-  default = {
-    type = "t2.medium"
-    userdata = "userdata/mysql.sh"
-    count = "1"
-  }
-}
+//variable "opencart" {
+//  type = map
+//  default = {
+//    type = "t2.medium"
+//    userdata = "userdata/opencart.sh"
+//    count = "2"
+//    opencartDownloadUrl = "https://github.com/opencart/opencart/releases/download/3.0.3.5/opencart-3.0.3.5.zip"
+//  }
+//}
+//
+//variable "mysql" {
+//  type = map
+//  default = {
+//    type = "t2.medium"
+//    userdata = "userdata/mysql.sh"
+//    count = "1"
+//  }
+//}
 
 variable "autoScalingGroupUserdata" {
   default = "userdata/backendGroup.sh"
@@ -74,7 +75,7 @@ variable "controller" {
     hostname = "controller"
     count = "1"
     type = "t2.2xlarge"
-    version = "20.1.2"
+    version = "20.1.3"
     from_email = "avicontroller@avidemo.fr"
     se_in_provider_context = "false"
     tenant_access_to_provider_se = "true"
@@ -180,23 +181,91 @@ variable "aws" {
         }
       }
     ]
-    pool = {
-      name = "pool1"
-      lb_algorithm = "LB_ALGORITHM_ROUND_ROBIN"
-    }
-    pool_opencart = {
-      name = "pool_opencart"
-      lb_algorithm = "LB_ALGORITHM_ROUND_ROBIN"
-    }
+    httppolicyset = [
+      {
+        name = "http-request-policy-app3-content-switching-aws"
+        http_request_policy = {
+          rules = [
+            {
+              name = "Rule 1"
+              match = {
+                path = {
+                  match_criteria = "CONTAINS"
+                  match_str = ["hello", "world"]
+                }
+              }
+              rewrite_url_action = {
+                path = {
+                  type = "URI_PARAM_TYPE_TOKENIZED"
+                  tokens = [
+                    {
+                      type = "URI_TOKEN_TYPE_STRING"
+                      str_value = "index.html"
+                    }
+                  ]
+                }
+                query = {
+                  keep_query = true
+                }
+              }
+              switching_action = {
+                action = "HTTP_SWITCHING_SELECT_POOL"
+                status_code = "HTTP_LOCAL_RESPONSE_STATUS_CODE_200"
+                pool_ref = "/api/pool?name=pool1-hello-aws"
+              }
+            },
+            {
+              name = "Rule 2"
+              match = {
+                path = {
+                  match_criteria = "CONTAINS"
+                  match_str = ["avi"]
+                }
+              }
+              rewrite_url_action = {
+                path = {
+                  type = "URI_PARAM_TYPE_TOKENIZED"
+                  tokens = [
+                    {
+                      type = "URI_TOKEN_TYPE_STRING"
+                      str_value = ""
+                    }
+                  ]
+                }
+                query = {
+                  keep_query = true
+                }
+              }
+              switching_action = {
+                action = "HTTP_SWITCHING_SELECT_POOL"
+                status_code = "HTTP_LOCAL_RESPONSE_STATUS_CODE_200"
+                pool_ref = "/api/pool?name=pool2-avi-aws"
+              }
+            },
+          ]
+        }
+      }
+    ]
+    pools = [
+      {
+        name = "pool1-hello-aws"
+        lb_algorithm = "LB_ALGORITHM_ROUND_ROBIN"
+      },
+      {
+        name = "pool2-avi-aws"
+        application_persistence_profile_ref = "System-Persistence-Client-IP"
+        default_server_port = 8080
+      }
+    ]
     pool_asg = {
-      name = "pool2BasedOnASG"
+      name = "pool3BasedOnASG"
       lb_algorithm = "LB_ALGORITHM_ROUND_ROBIN"
     }
     virtualservices = {
       http = [
         {
-          name = "app1"
-          pool_ref = "pool1"
+          name = "app1-hello-world-aws"
+          pool_ref = "pool1-hello-aws"
           services: [
             {
               port = 80
@@ -209,18 +278,8 @@ variable "aws" {
           ]
         },
         {
-          name = "app2-basedOnAsg"
-          pool_ref = "pool2BasedOnASG"
-          services: [
-            {
-              port = 443
-              enable_ssl = "true"
-            }
-          ]
-        },
-        {
-          name = "opencart"
-          pool_ref = "pool_opencart"
+          name = "app2-avi-aws"
+          pool_ref = "pool2-avi-aws"
           services: [
             {
               port = 80
@@ -231,11 +290,41 @@ variable "aws" {
               enable_ssl = "true"
             }
           ]
-        }
+        },
+        {
+          name = "app3-content-switching-aws"
+          pool_ref = "pool2-avi-aws"
+          http_policies = [
+            {
+              http_policy_set_ref = "/api/httppolicyset?name=http-request-policy-app3-content-switching-aws"
+              index = 11
+            }
+          ]
+          services: [
+            {
+              port = 80
+              enable_ssl = "false"
+            },
+            {
+              port = 443
+              enable_ssl = "true"
+            }
+          ]
+        },
+        {
+          name = "app4-basedOnAsg"
+          pool_ref = "pool3BasedOnASG"
+          services: [
+            {
+              port = 443
+              enable_ssl = "true"
+            }
+          ]
+        },
       ]
       dns = [
         {
-          name = "app3-dns"
+          name = "app5-dns"
           services: [
             {
               port = 53
@@ -243,7 +332,7 @@ variable "aws" {
           ]
         },
         {
-          name = "app4-gslb"
+          name = "app6-gslb"
           services: [
             {
               port = 53
